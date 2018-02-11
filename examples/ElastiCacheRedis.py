@@ -11,6 +11,7 @@ from __future__ import absolute_import, division, print_function
 import troposphere.ec2 as ec2
 import troposphere.elasticache as elasticache
 import troposphere.iam as iam
+import awacs
 
 from awacs.aws import (Allow,
                        Statement,
@@ -42,7 +43,7 @@ def main():
     # Description
     template.add_description(
         'AWS CloudFormation Sample Template ElastiCache_Redis:'
-        'Sample template showIing how to create an Amazon'
+        'Sample template showing how to create an Amazon'
         'ElastiCache Redis Cluster. **WARNING** This template'
         'creates an Amazon EC2 Instance and an Amazon ElastiCache'
         'Cluster. You will be billed for the AWS resources used'
@@ -262,31 +263,21 @@ def main():
                 ]
             ),
         Path='/',
-        ))
+    ))
 
     template.add_resource(iam.PolicyType(
         'WebServerRolePolicy',
         PolicyName='WebServerRole',
-        # PolicyDocument=Policy(
-        #     Statement=[
-        #         Statement(
-        #             Effect=Allow,
-        #             Action=['elasticache:DescribeCacheClusters'],
-        #             Resource=['*'],
-        #             )
-        #         ]
-        #     )
-        # The following can probably be fixed to use #
-        # awacs (above didn't work)                  #
-        PolicyDocument={
-            "Statement":    [{
-                "Effect":   "Allow",
-                "Action":   "elasticache:DescribeCacheClusters",
-                "Resource": "*"
-                }]
-            },
+        PolicyDocument=awacs.aws.Policy(
+            Statement=[awacs.aws.Statement(
+                Action=[awacs.aws.Action("elasticache",
+                        "DescribeCacheClusters")],
+                Resource=["*"],
+                Effect=awacs.aws.Allow
+            )]
+        ),
         Roles=[Ref(webserverrole)],
-        ))
+    ))
 
     webserverinstanceprofile = template.add_resource(iam.InstanceProfile(
         'WebServerInstanceProfile',

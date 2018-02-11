@@ -1,6 +1,5 @@
-from . import AWSHelperFn, AWSObject, AWSProperty
-from .validators import positive_integer
-import json
+from . import AWSObject, AWSProperty
+from .validators import boolean, json_checker, positive_integer
 
 
 def validate_authorizer_ttl(ttl_value):
@@ -34,8 +33,10 @@ class ApiKey(AWSObject):
     resource_type = "AWS::ApiGateway::ApiKey"
 
     props = {
+        "CustomerId": (basestring, False),
         "Description": (basestring, False),
-        "Enabled": (bool, False),
+        "Enabled": (boolean, False),
+        "GenerateDistinctId": (boolean, False),
         "Name": (basestring, False),
         "StageKeys": ([StageKey], False)
     }
@@ -45,6 +46,7 @@ class Authorizer(AWSObject):
     resource_type = "AWS::ApiGateway::Authorizer"
 
     props = {
+        "AuthType": (basestring, False),
         "AuthorizerCredentials": (basestring, False),
         "AuthorizerResultTtlInSeconds": (validate_authorizer_ttl, False),
         "AuthorizerUri": (basestring, True),
@@ -112,6 +114,13 @@ class StageDescription(AWSProperty):
         "Variables": (dict, False)
     }
 
+    def validate(self):
+        if 'StageName' in self.properties:
+            raise DeprecationWarning(
+                "The StageName property has been deprecated "
+                "in StageDescription"
+            )
+
 
 class Deployment(AWSObject):
     resource_type = "AWS::ApiGateway::Deployment"
@@ -124,9 +133,58 @@ class Deployment(AWSObject):
     }
 
 
+class Location(AWSProperty):
+    props = {
+        "Method": (basestring, False),
+        "Name": (basestring, False),
+        "Path": (basestring, False),
+        "StatusCode": (basestring, False),
+        "Type": (basestring, False),
+    }
+
+
+class DocumentationPart(AWSObject):
+    resource_type = "AWS::ApiGateway::DocumentationPart"
+
+    props = {
+        "Location": (Location, True),
+        "Properties": (basestring, True),
+        "RestApiId": (basestring, True),
+    }
+
+
+class DocumentationVersion(AWSObject):
+    resource_type = "AWS::ApiGateway::DocumentationVersion"
+
+    props = {
+        "Description": (basestring, False),
+        "DocumentationVersion": (basestring, True),
+        "RestApiId": (basestring, True),
+    }
+
+
+class EndpointConfiguration(AWSProperty):
+
+    props = {
+        "Types": ([basestring], False)
+    }
+
+
+class DomainName(AWSObject):
+    resource_type = "AWS::ApiGateway::DomainName"
+
+    props = {
+        "CertificateArn": (basestring, True),
+        "DomainName": (basestring, True),
+        "EndpointConfiguration": (EndpointConfiguration, False),
+        "RegionalCertificateArn": (basestring, False),
+    }
+
+
 class IntegrationResponse(AWSProperty):
 
     props = {
+        "ContentHandling": (basestring, False),
         "ResponseParameters": (dict, False),
         "ResponseTemplates": (dict, False),
         "SelectionPattern": (basestring, False),
@@ -139,6 +197,7 @@ class Integration(AWSProperty):
     props = {
         "CacheKeyParameters": ([basestring], False),
         "CacheNamespace": (basestring, False),
+        "ContentHandling": (basestring, False),
         "Credentials": (basestring, False),
         "IntegrationHttpMethod": (basestring, False),
         "IntegrationResponses": ([IntegrationResponse], False),
@@ -169,8 +228,10 @@ class Method(AWSObject):
         "HttpMethod": (basestring, True),
         "Integration": (Integration, False),
         "MethodResponses": ([MethodResponse], False),
+        "OperationName": (basestring, False),
         "RequestModels": (dict, False),
         "RequestParameters": (dict, False),
+        "RequestValidatorId": (basestring, False),
         "ResourceId": (basestring, True),
         "RestApiId": (basestring, True)
     }
@@ -188,18 +249,21 @@ class Model(AWSObject):
     }
 
     def validate(self):
-        if 'Schema' in self.properties:
-            schema = self.properties.get('Schema')
-            if isinstance(schema, basestring):
-                # Verify it is a valid json string
-                json.loads(schema)
-            elif isinstance(schema, dict):
-                # Convert the dict to a basestring
-                self.properties['Schema'] = json.dumps(schema)
-            elif isinstance(schema, AWSHelperFn):
-                pass
-            else:
-                raise ValueError("Schema must be a str or dict")
+        name = 'Schema'
+        if name in self.properties:
+            schema = self.properties.get(name)
+            self.properties[name] = json_checker(name, schema)
+
+
+class RequestValidator(AWSObject):
+    resource_type = "AWS::ApiGateway::RequestValidator"
+
+    props = {
+        "Name": (basestring, True),
+        "RestApiId": (basestring, True),
+        "ValidateRequestBody": (boolean, False),
+        "ValidateRequestParameters": (boolean, False),
+    }
 
 
 class Resource(AWSObject):
@@ -226,13 +290,15 @@ class RestApi(AWSObject):
     resource_type = "AWS::ApiGateway::RestApi"
 
     props = {
+        "BinaryMediaTypes": ([basestring], False),
         "Body": (dict, False),
         "BodyS3Location": (S3Location, False),
         "CloneFrom": (basestring, False),
         "Description": (basestring, False),
+        "EndpointConfiguration": (EndpointConfiguration, False),
         "FailOnWarnings": (basestring, False),
         "Name": (basestring, False),
-        "Parameters": ([basestring], False)
+        "Parameters": ([basestring], False),
     }
 
 
@@ -245,6 +311,7 @@ class Stage(AWSObject):
         "ClientCertificateId": (basestring, False),
         "DeploymentId": (basestring, True),
         "Description": (basestring, False),
+        "DocumentationVersion": (basestring, False),
         "MethodSettings": ([MethodSetting], False),
         "RestApiId": (basestring, True),
         "StageName": (basestring, True),
@@ -293,4 +360,50 @@ class UsagePlanKey(AWSObject):
         "KeyId": (basestring, True),
         "KeyType": (basestring, True),
         "UsagePlanId": (basestring, True),
+    }
+
+
+def validate_gateway_response_type(response_type):
+    """ Validate response type
+    :param response_type: The GatewayResponse response type
+    :return: The provided value if valid
+    """
+    valid_response_types = [
+        "ACCESS_DENIED",
+        "API_CONFIGURATION_ERROR",
+        "AUTHORIZER_FAILURE",
+        "AUTHORIZER_CONFIGURATION_ERROR",
+        "BAD_REQUEST_PARAMETERS",
+        "BAD_REQUEST_BODY",
+        "DEFAULT_4XX",
+        "DEFAULT_5XX",
+        "EXPIRED_TOKEN",
+        "INVALID_SIGNATURE",
+        "INTEGRATION_FAILURE",
+        "INTEGRATION_TIMEOUT",
+        "INVALID_API_KEY",
+        "MISSING_AUTHENTICATION_TOKEN",
+        "QUOTA_EXCEEDED",
+        "REQUEST_TOO_LARGE",
+        "RESOURCE_NOT_FOUND",
+        "THROTTLED",
+        "UNAUTHORIZED",
+        "UNSUPPORTED_MEDIA_TYPE"
+    ]
+    if response_type not in valid_response_types:
+        raise ValueError(
+            "{} is not a valid ResponseType".format(response_type)
+        )
+    return response_type
+
+
+class GatewayResponse(AWSObject):
+    resource_type = "AWS::ApiGateway::GatewayResponse"
+
+    props = {
+        "ResponseParameters": (dict, False),
+        "ResponseTemplates": (dict, False),
+        "ResponseType": (validate_gateway_response_type, True),
+        "RestApiId": (basestring, True),
+        "StatusCode": (basestring, False)
     }

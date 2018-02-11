@@ -3,7 +3,7 @@
 #
 # See LICENSE file for full license.
 
-from . import AWSProperty, AWSObject
+from . import AWSProperty, AWSObject, Tags
 from .validators import boolean, integer, integer_range, positive_integer
 
 VALID_VOLUME_TYPES = ('standard', 'gp2', 'io1')
@@ -55,6 +55,13 @@ class SnapshotOptions(AWSProperty):
     }
 
 
+class VPCOptions(AWSProperty):
+    props = {
+        "SecurityGroupIds": ([basestring], False),
+        "SubnetIds": ([basestring], False)
+    }
+
+
 class Domain(AWSObject):
     resource_type = "AWS::Elasticsearch::Domain"
 
@@ -66,7 +73,8 @@ class Domain(AWSObject):
         'ElasticsearchClusterConfig': (ElasticsearchClusterConfig, False),
         'ElasticsearchVersion': (basestring, False),
         'SnapshotOptions': (SnapshotOptions, False),
-        'Tags': (list, False)
+        'Tags': ((Tags, list), False),
+        'VPCOptions': (VPCOptions, False)
     }
 
 

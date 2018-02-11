@@ -3,7 +3,8 @@
 #
 # See LICENSE file for full license.
 
-from . import AWSObject, AWSProperty
+from . import AWSObject, AWSProperty, Tags
+from .validators import boolean
 
 
 def attribute_type_validator(x):
@@ -62,6 +63,12 @@ class Projection(AWSProperty):
     }
 
 
+class SSESpecification(AWSProperty):
+    props = {
+        "SSEEnabled": (boolean, True),
+    }
+
+
 class GlobalSecondaryIndex(AWSProperty):
     props = {
         "IndexName": (basestring, True),
@@ -85,6 +92,13 @@ class StreamSpecification(AWSProperty):
         }
 
 
+class TimeToLiveSpecification(AWSProperty):
+        props = {
+            'AttributeName': (basestring, True),
+            'Enabled': (boolean, True),
+        }
+
+
 class Table(AWSObject):
     resource_type = "AWS::DynamoDB::Table"
 
@@ -94,6 +108,9 @@ class Table(AWSObject):
         'KeySchema': ([KeySchema], True),
         'LocalSecondaryIndexes': ([LocalSecondaryIndex], False),
         'ProvisionedThroughput': (ProvisionedThroughput, True),
+        'SSESpecification': (SSESpecification, False),
         'StreamSpecification': (StreamSpecification, False),
         'TableName': (basestring, False),
+        'Tags': (Tags, False),
+        'TimeToLiveSpecification': (TimeToLiveSpecification, False),
     }

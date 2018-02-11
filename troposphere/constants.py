@@ -7,6 +7,7 @@ AP_NORTHEAST_2 = 'ap-northeast-2'
 AP_SOUTHEAST_1 = 'ap-southeast-1'
 AP_SOUTHEAST_2 = 'ap-southeast-2'
 EU_WEST_1 = 'eu-west-1'
+EU_WEST_2 = 'eu-west-2'
 EU_CENTRAL_1 = 'eu-central-1'
 SA_EAST_1 = 'sa-east-1'
 US_EAST_1 = 'us-east-1'
@@ -35,6 +36,9 @@ AP_SOUTHEAST_2C = 'ap-southeast-2c'
 EU_WEST_1A = 'eu-west-1a'
 EU_WEST_1B = 'eu-west-1b'
 EU_WEST_1C = 'eu-west-1c'
+
+EU_WEST_2A = 'eu-west-2a'
+EU_WEST_2B = 'eu-west-2b'
 
 EU_CENTRAL_1A = 'eu-central-1a'
 EU_CENTRAL_1B = 'eu-central-1b'
@@ -75,6 +79,11 @@ REDIS_PORT = 6379
 MEMCACHED_PORT = 11211
 POSTGRESQL_PORT = 5432
 
+TCP_PROTOCOL = 6
+UDP_PROTOCOL = 17
+ICMP_PROTOCOL = 1
+ALL_PROTOCOL = -1
+
 #
 # EC2 instance types
 #
@@ -86,6 +95,13 @@ T2_MEDIUM = 't2.medium'
 T2_LARGE = 't2.large'
 T2_XLARGE = 't2.xlarge'
 T2_2XLARGE = 't2.2xlarge'
+
+M5_LARGE = 'm5.large'
+M5_XLARGE = 'm5.xlarge'
+M5_2XLARGE = 'm5.2xlarge'
+M5_4XLARGE = 'm5.4xlarge'
+M5_12XLARGE = 'm5.12xlarge'
+M5_24XLARGE = 'm5.24xlarge'
 
 M4_LARGE = 'm4.large'
 M4_XLARGE = 'm4.xlarge'
@@ -252,11 +268,30 @@ ELASTICSEARCH_M3_LARGE = 'm3.large.elasticsearch'
 ELASTICSEARCH_M3_XLARGE = 'm3.xlarge.elasticsearch'
 ELASTICSEARCH_M3_2XLARGE = 'm3.2xlarge.elasticsearch'
 
+ELASTICSEARCH_M4_LARGE = 'm4.large.elasticsearch'
+ELASTICSEARCH_M4_XLARGE = 'm4.xlarge.elasticsearch'
+ELASTICSEARCH_M4_2XLARGE = 'm4.2xlarge.elasticsearch'
+ELASTICSEARCH_M4_4XLARGE = 'm4.4xlarge.elasticsearch'
+ELASTICSEARCH_M4_10XLARGE = 'm4.10xlarge.elasticsearch'
+
+ELASTICSEARCH_C4_LARGE = 'c4.large.elasticsearch'
+ELASTICSEARCH_C4_XLARGE = 'c4.xlarge.elasticsearch'
+ELASTICSEARCH_C4_2XLARGE = 'c4.2xlarge.elasticsearch'
+ELASTICSEARCH_C4_4XLARGE = 'c4.4xlarge.elasticsearch'
+ELASTICSEARCH_C4_8XLARGE = 'c4.8xlarge.elasticsearch'
+
 ELASTICSEARCH_R3_LARGE = 'r3.large.elasticsearch'
 ELASTICSEARCH_R3_XLARGE = 'r3.xlarge.elasticsearch'
 ELASTICSEARCH_R3_2XLARGE = 'r3.2xlarge.elasticsearch'
 ELASTICSEARCH_R3_4XLARGE = 'r3.4xlarge.elasticsearch'
 ELASTICSEARCH_R3_8XLARGE = 'r3.8xlarge.elasticsearch'
+
+ELASTICSEARCH_R4_LARGE = 'r4.large.elasticsearch'
+ELASTICSEARCH_R4_XLARGE = 'r4.xlarge.elasticsearch'
+ELASTICSEARCH_R4_2XLARGE = 'r4.2xlarge.elasticsearch'
+ELASTICSEARCH_R4_4XLARGE = 'r4.4xlarge.elasticsearch'
+ELASTICSEARCH_R4_8XLARGE = 'r4.8xlarge.elasticsearch'
+ELASTICSEARCH_R4_16XLARGE = 'r4.16xlarge.elasticsearch'
 
 ELASTICSEARCH_I2_XLARGE = 'i2.xlarge.elasticsearch'
 ELASTICSEARCH_I2_2XLARGE = 'i2.2xlarge.elasticsearch'

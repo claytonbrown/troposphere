@@ -4,12 +4,35 @@
 # See LICENSE file for full license.
 
 from . import AWSObject, AWSProperty, Tags
-
+from .validators import boolean, integer
 
 WebServer = "WebServer"
 Worker = "Worker"
 WebServerType = "Standard"
 WorkerType = "SQS/HTTP"
+
+
+class MaxAgeRule(AWSProperty):
+    props = {
+      'DeleteSourceFromS3': (boolean, False),
+      'Enabled': (boolean, False),
+      'MaxAgeInDays': (integer, False),
+    }
+
+
+class MaxCountRule(AWSProperty):
+    props = {
+      'DeleteSourceFromS3': (boolean, False),
+      'Enabled': (boolean, False),
+      'MaxCount': (integer, False),
+    }
+
+
+class ApplicationVersionLifecycleConfig(AWSProperty):
+    props = {
+        'MaxAgeRule': (MaxAgeRule, False),
+        'MaxCountRule': (MaxCountRule, False),
+    }
 
 
 class SourceBundle(AWSProperty):
@@ -26,10 +49,18 @@ class SourceConfiguration(AWSProperty):
     }
 
 
+class ApplicationResourceLifecycleConfig(AWSProperty):
+    props = {
+        'ServiceRole': (basestring, False),
+        'VersionLifecycleConfig': (ApplicationVersionLifecycleConfig, False),
+    }
+
+
 class OptionSettings(AWSProperty):
     props = {
         'Namespace': (basestring, True),
         'OptionName': (basestring, True),
+        'ResourceName': (basestring, False),
         'Value': (basestring, True),
     }
 
@@ -40,6 +71,7 @@ class Application(AWSObject):
     props = {
         'ApplicationName': (basestring, False),
         'Description': (basestring, False),
+        'ResourceLifecycleConfig': (ApplicationResourceLifecycleConfig, False),
     }
 
 
@@ -61,6 +93,7 @@ class ConfigurationTemplate(AWSObject):
         'Description': (basestring, False),
         'EnvironmentId': (basestring, False),
         'OptionSettings': ([OptionSettings], False),
+        'PlatformArn': (basestring, False),
         'SolutionStackName': (basestring, False),
         'SourceConfiguration': (SourceConfiguration, False),
     }
@@ -97,6 +130,7 @@ class Environment(AWSObject):
         'Description': (basestring, False),
         'EnvironmentName': (basestring, False),
         'OptionSettings': ([OptionSettings], False),
+        'PlatformArn': (basestring, False),
         'SolutionStackName': (basestring, False),
         'Tags': (Tags, False),
         'TemplateName': (basestring, False),

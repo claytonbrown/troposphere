@@ -30,12 +30,27 @@ class CloudwatchMetricAction(AWSProperty):
 class DynamoDBAction(AWSProperty):
     props = {
         'HashKeyField': (basestring, True),
+        'HashKeyType': (basestring, False),
         'HashKeyValue': (basestring, True),
         'PayloadField': (basestring, False),
-        'RangeKeyField': (basestring, True),
-        'RangeKeyValue': (basestring, True),
+        'RangeKeyField': (basestring, False),
+        'RangeKeyType': (basestring, False),
+        'RangeKeyValue': (basestring, False),
         'RoleArn': (basestring, True),
         'TableName': (basestring, True),
+    }
+
+
+class PutItemInput(AWSProperty):
+    props = {
+        'TableName': (basestring, True),
+    }
+
+
+class DynamoDBv2Action(AWSProperty):
+    props = {
+        'PutItem': (PutItemInput, False),
+        'RoleArn': (basestring, False),
     }
 
 
@@ -107,6 +122,7 @@ class Action(AWSProperty):
         'CloudwatchAlarm': (CloudwatchAlarmAction, False),
         'CloudwatchMetric': (CloudwatchMetricAction, False),
         'DynamoDB': (DynamoDBAction, False),
+        'DynamoDBv2': (DynamoDBv2Action, False),
         'Elasticsearch': (ElasticsearchAction, False),
         'Firehose': (FirehoseAction, False),
         'Kinesis': (KinesisAction, False),

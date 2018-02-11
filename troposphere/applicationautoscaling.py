@@ -1,5 +1,22 @@
 from . import AWSObject, AWSProperty
-from .validators import integer
+from .validators import floatingpoint, integer, positive_integer
+
+
+class ScalableTargetAction(AWSProperty):
+    props = {
+        'MaxCapacity': (integer, False),
+        'MinCapacity': (integer, False),
+    }
+
+
+class ScheduledAction(AWSProperty):
+    props = {
+        'EndTime': (basestring, False),
+        'ScalableTargetAction': (ScalableTargetAction, False),
+        'Schedule': (basestring, True),
+        'ScheduledActionName': (basestring, True),
+        'StartTime': (basestring, False),
+    }
 
 
 class ScalableTarget(AWSObject):
@@ -11,6 +28,7 @@ class ScalableTarget(AWSObject):
         'ResourceId': (basestring, True),
         'RoleARN': (basestring, True),
         'ScalableDimension': (basestring, True),
+        'ScheduledActions': ([ScheduledAction], False),
         'ServiceNamespace': (basestring, True),
     }
 
@@ -33,6 +51,42 @@ class StepScalingPolicyConfiguration(AWSProperty):
     }
 
 
+class MetricDimension(AWSProperty):
+    props = {
+        'Name': (basestring, True),
+        'Value': (basestring, True),
+    }
+
+
+class CustomizedMetricSpecification(AWSProperty):
+    props = {
+        'Dimensions': ([MetricDimension], False),
+        'MetricName': (basestring, False),
+        'Namespace': (basestring, False),
+        'Statistic': (basestring, False),
+        'Unit': (basestring, True),
+    }
+
+
+class PredefinedMetricSpecification(AWSProperty):
+    props = {
+        'PredefinedMetricType': (basestring, True),
+        'ResourceLabel': (basestring, False),
+    }
+
+
+class TargetTrackingScalingPolicyConfiguration(AWSProperty):
+    props = {
+        'CustomizedMetricSpecification':
+            (CustomizedMetricSpecification, False),
+        'PredefinedMetricSpecification':
+            (PredefinedMetricSpecification, False),
+        'ScaleInCooldown': (positive_integer, False),
+        'ScaleOutCooldown': (positive_integer, False),
+        'TargetValue': (floatingpoint, True),
+    }
+
+
 class ScalingPolicy(AWSObject):
     resource_type = "AWS::ApplicationAutoScaling::ScalingPolicy"
 
@@ -45,6 +99,10 @@ class ScalingPolicy(AWSObject):
         'ScalingTargetId': (basestring, False),
         'StepScalingPolicyConfiguration': (
             StepScalingPolicyConfiguration,
+            False,
+        ),
+        'TargetTrackingScalingPolicyConfiguration': (
+            TargetTrackingScalingPolicyConfiguration,
             False,
         ),
     }

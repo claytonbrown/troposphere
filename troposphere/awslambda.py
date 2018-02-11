@@ -1,7 +1,7 @@
 from . import AWSObject, AWSProperty, Join, Tags
 from .validators import positive_integer
 
-MEMORY_VALUES = [x for x in range(128, 1600, 64)]
+MEMORY_VALUES = [x for x in range(128, 3009, 64)]
 
 
 def validate_memory_size(memory_value):
@@ -124,6 +124,13 @@ class Environment(AWSProperty):
     }
 
 
+class TracingConfig(AWSProperty):
+
+    props = {
+        'Mode': (basestring, False),
+    }
+
+
 class Function(AWSObject):
     resource_type = "AWS::Lambda::Function"
 
@@ -136,10 +143,12 @@ class Function(AWSObject):
         'Handler': (basestring, True),
         'KmsKeyArn': (basestring, False),
         'MemorySize': (validate_memory_size, False),
+        'ReservedConcurrentExecutions': (positive_integer, False),
         'Role': (basestring, True),
         'Runtime': (basestring, True),
         'Tags': (Tags, False),
         'Timeout': (positive_integer, False),
+        'TracingConfig': (TracingConfig, False),
         'VpcConfig': (VPCConfig, False),
     }
 
@@ -149,10 +158,26 @@ class Permission(AWSObject):
 
     props = {
         'Action': (basestring, True),
+        'EventSourceToken': (basestring, False),
         'FunctionName': (basestring, True),
         'Principal': (basestring, True),
         'SourceAccount': (basestring, False),
         'SourceArn': (basestring, False),
+    }
+
+
+class VersionWeight(AWSProperty):
+
+    props = {
+        'FunctionVersion': (basestring, True),
+        'FunctionWeight': (float, True),
+    }
+
+
+class AliasRoutingConfiguration(AWSProperty):
+
+    props = {
+        'AdditionalVersionWeights': ([VersionWeight], True),
     }
 
 
@@ -164,6 +189,7 @@ class Alias(AWSObject):
         'FunctionName': (basestring, True),
         'FunctionVersion': (basestring, True),
         'Name': (basestring, True),
+        'RoutingConfig': (AliasRoutingConfiguration, False),
     }
 
 
